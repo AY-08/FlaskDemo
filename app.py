@@ -201,9 +201,10 @@ class CartProductSchema(ma.Schema):
 
 #### product join 
 
-@app.route('/api/public/product/search/<string:productname>', methods= ['GET'])
-def search_product(productname):
+@app.route('/api/public/product/search', methods= ['GET'])
+def search_product():
     # productname = '"{}"'.format('crocin')
+    productname = request.args.get('keyword')
     print("productname",productname)
     result  = db.session.query(Product,Category,User).\
         select_from(Product).join(Category).join(User).filter(Product.product_name==productname).all()
@@ -270,14 +271,17 @@ def token_required(f):
 
 @app.route('/api/public/login',methods=['POST'])
 def getjwttoken():
-    keyjson = {'username':request.json['username'],'password':request.json['password']}
+    requestdata = request.get_json()
+    print(requestdata)
+    # keyjson = {'username':request.json['username'],'password':request.json['password']}
    
-    for k , v in keyjson.items():
-        if k == 'username':
-            username = v
-        elif k=='password':
-            password = v  
-
+    # for k , v in keyjson.items():
+    #     if k == 'username':
+    #         username = v
+    #     elif k=='password':
+    #         password = v  
+    username = requestdata['username']
+    password = requestdata['password']
     print(username)
     print(password)          
     user = db.session.query(User).select_from(User).filter(and_(User.user_name==username, User.password==password)).all()
@@ -370,6 +374,8 @@ def getproducts(currentuser):
 
     return make_response(jsonify("Invalid seller Check with seller token"))    
 
+
+
 # def test(self):
 #     url='/api/public/login'
 #     user_credentials ='apple:pass_word'
@@ -381,8 +387,8 @@ def getproducts(currentuser):
 
 
 
-# url='/api/public/login'
-# user_credentials ='apple:pass_word'
+
+#user_credentials ='apple:pass_word'
 # valid_credentials= base64.b64encode(user_credentials.encode('UTF-8')).decode('UTF-8')
 # print(valid_credentials)
 
